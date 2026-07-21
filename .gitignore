@@ -1,0 +1,13 @@
+# Secrets & environment config — NEVER commit these (contain live API keys)
+api/config.php
+assets/config.js
+
+# Archives / build artifacts
+*.zip
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

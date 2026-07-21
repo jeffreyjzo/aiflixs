@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watch — AI Flixs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .watch-wrap { max-width: 960px; margin: 0 auto; padding: 110px 20px 80px; }
+    .player-frame { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 14px; background: #000; display: block; }
+    .locked {
+      width: 100%; aspect-ratio: 16 / 9; border-radius: 14px;
+      background: linear-gradient(120deg, #12060f, #4a0d13 55%, #1a1a2e);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 20px;
+    }
+    .locked .lock-icon { font-size: 42px; }
+    .watch-meta { margin-top: 26px; }
+    .watch-meta h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    .watch-meta .by { color: var(--muted); font-size: 14px; margin: 4px 0 14px; }
+    .watch-meta .by a { color: var(--accent); }
+    .watch-meta p.syn { color: var(--muted); max-width: 640px; }
+    .access-note { margin-top: 10px; font-size: 13px; color: #7dd97d; }
+    .ad-slot { margin: 26px 0 0; text-align: center; }
+    .ad-slot .ad-label { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Browse</a>
+      <a href="upload.html">Submit a film</a>
+      <a href="signup.html" class="btn btn-ghost" style="padding:8px 18px">Sign in</a>
+    </div>
+  </nav>
+
+  <main class="watch-wrap">
+    <div id="player-area">
+      <div class="locked"><p style="color:var(--muted)">Loading film…</p></div>
+    </div>
+    <div class="ad-slot" id="ad-slot" style="display:none">
+      <div class="ad-label">Advertisement</div>
+      <div id="ad-container"></div>
+    </div>
+    <div class="watch-meta" id="watch-meta"></div>
+  </main>
+
+  <script src="assets/config.js?v=7"></script>
+  <script src="assets/app.js?v=7"></script>
+  <script>
+    const filmId = parseInt(new URLSearchParams(location.search).get("film"), 10);
+    const area = document.getElementById("player-area");
+    const meta = document.getElementById("watch-meta");
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    async function load() {
+      if (!filmId) { area.innerHTML = '<div class="locked"><p>No film selected.</p></div>'; return; }
+      const r = await fetch((window.AF_CONFIG.API_BASE) + "/watch.php?film=" + filmId);
+      const d = await r.json();
+      if (d.error) {
+        area.innerHTML = '<div class="locked"><div class="lock-icon">🎬</div><p style="color:var(--muted)">' +
+          (d.error === "not_available" ? "This film isn't published yet." : "Film not found.") + "</p></div>";
+        return;
+      }
+      const f = d.film;
+      const price = (f.price_cents / 100).toFixed(2);
+
+      meta.innerHTML =
+        "<h1>" + esc(f.title) + "</h1>" +
+        '<p class="by">by <a href="creator.html?u=' + esc(f.handle) + '">@' + esc(f.handle) + "</a> · " + f.views + " views</p>" +
+        '<p class="syn">' + esc(f.synopsis) + "</p>" +
+        (d.expires_at ? '<p class="access-note">✓ Unlocked — your access ends ' + esc(d.expires_at) + " (UTC)</p>" : "");
+
+      if (d.can_watch && d.embed_url) {
+        area.innerHTML = '<iframe class="player-frame" src="' + d.embed_url +
+          '" loading="lazy" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture" allowfullscreen></iframe>';
+        // Free + ads model: show an ad unit under free films once the ad
+        // network client ID is configured in assets/config.js
+        if (f.price_cents === 0 && window.AF_CONFIG.ADSENSE_CLIENT) {
+          const slot = document.getElementById("ad-slot");
+          slot.style.display = "block";
+          const s = document.createElement("script");
+          s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + window.AF_CONFIG.ADSENSE_CLIENT;
+          s.async = true; s.crossOrigin = "anonymous";
+          document.head.appendChild(s);
+          document.getElementById("ad-container").innerHTML =
+            '<ins class="adsbygoogle" style="display:block" data-ad-client="' + window.AF_CONFIG.ADSENSE_CLIENT +
+            '" data-ad-format="auto" data-full-width-responsive="true"></ins>';
+          s.onload = () => (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      } else if (d.can_watch && !d.embed_url) {
+        area.innerHTML = '<div class="locked"><div class="lock-icon">⏳</div><p style="color:var(--muted)">Video is still processing — check back shortly.</p></div>';
+      } else {
+        area.innerHTML =
+          '<div class="locked"><div class="lock-icon">🔒</div>' +
+          "<h2>Unlock &ldquo;" + esc(f.title) + "&rdquo;</h2>" +
+          '<p style="color:var(--muted)">$' + price + " · watch as much as you want for " + d.unlock_days + " days</p>" +
+          (d.signed_in
+            ? '<button class="btn btn-primary" onclick="AF.unlockFilm(' + f.id + ')">Unlock for $' + price + "</button>"
+            : '<a class="btn btn-primary" href="signup.html">Sign in to unlock</a>') +
+          "</div>";
+      }
+
+      const purchase = new URLSearchParams(location.search).get("purchase");
+      if (purchase === "success") alert("🎬 Payment complete — enjoy! Your " + d.unlock_days + "-day access has started.");
+      else if (purchase === "cancelled") alert("Checkout cancelled — no charge was made.");
+      else if (purchase === "incomplete") alert("Payment didn't complete. No charge was made.");
+      else if (purchase === "error") alert("Something went wrong verifying your payment. If you were charged, contact support.");
+    }
+    load();
+  </script>
+</body>
+</html>

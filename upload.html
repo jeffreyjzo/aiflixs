@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submit your film — AI Flixs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Browse</a>
+      <a href="about.html" class="hide-sm">About</a>
+      <a href="upload.html" class="active">Submit a film</a>
+      <a href="signup.html" class="btn btn-ghost" style="padding:8px 18px">Sign in</a>
+    </div>
+  </nav>
+
+  <main class="upload-wrap">
+    <h1>Submit your film</h1>
+    <p class="sub">Upload your AI film for review. Once approved it goes live on your creator page.</p>
+
+    <div class="rules">
+      <div class="rule"><strong>1 film</strong>per creator (for now)</div>
+      <div class="rule"><strong>20 GB</strong>maximum file size</div>
+      <div class="rule"><strong>1080p</strong>minimum resolution</div>
+      <div class="rule"><strong>4K</strong>maximum resolution</div>
+    </div>
+
+    <form id="upload-form">
+      <div class="dropzone" id="dropzone">
+        <div class="icon">🎬</div>
+        <p><span class="browse">Choose a video</span> or drag &amp; drop it here</p>
+        <p style="font-size:12px; margin-top:6px">MP4, MOV or WebM · checked instantly, nothing uploads until you submit</p>
+        <input type="file" id="file-input" accept="video/*" hidden />
+      </div>
+      <p class="file-status" id="file-status"></p>
+
+      <div class="field">
+        <label for="title">Film title</label>
+        <input id="title" type="text" placeholder="e.g. Neon Genesis City" required />
+      </div>
+      <div class="field">
+        <label for="desc">Synopsis</label>
+        <textarea id="desc" rows="3" placeholder="One or two sentences about your film" required></textarea>
+      </div>
+      <div class="field">
+        <label for="pricing-mode">Pricing</label>
+        <select id="pricing-mode">
+          <option value="free">Free to watch (with ads)</option>
+          <option value="paid">Pay-per-view — set your own price</option>
+        </select>
+      </div>
+      <div class="field" id="price-field" style="display:none">
+        <label for="price">Your price (USD $2.99 – $100) — viewers get 7-day access</label>
+        <input id="price" type="number" min="2.99" max="100" step="0.01" placeholder="e.g. 4.99" />
+      </div>
+
+      <div class="progress" id="progress"><div class="bar"></div></div>
+      <button type="submit" class="btn btn-primary btn-block" id="submit-btn" disabled>Submit for review</button>
+    </form>
+  </main>
+
+  <script src="assets/config.js?v=7"></script>
+  <script src="assets/app.js?v=7"></script>
+  <script src="assets/upload.js?v=7"></script>
+</body>
+</html>

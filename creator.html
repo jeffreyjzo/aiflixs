@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator — AI Flixs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Browse</a>
+      <a href="about.html" class="hide-sm">About</a>
+      <a href="upload.html">Submit a film</a>
+      <a href="signup.html" class="btn btn-ghost" style="padding:8px 18px">Sign in</a>
+    </div>
+  </nav>
+
+  <div class="profile-banner"></div>
+  <div class="profile-head">
+    <span class="avatar avatar-lg g4" id="c-avatar"></span>
+    <div class="profile-info">
+      <h1 id="c-name">Loading…</h1>
+      <p class="handle" id="c-handle"></p>
+    </div>
+  </div>
+  <div class="profile-stats">
+    <div class="stat"><strong id="c-stat-films">–</strong><span>Films</span></div>
+    <div class="stat"><strong id="c-stat-followers">–</strong><span>Followers</span></div>
+    <div class="stat"><strong id="c-stat-views">–</strong><span>Views</span></div>
+  </div>
+
+  <section class="section">
+    <div class="section-head"><h2>Films</h2></div>
+    <div class="film-row" id="c-films"></div>
+  </section>
+
+  <footer>
+    <div class="logo">AI FLI<span class="x">X</span>S</div>
+    <p>© 2026 AI Flixs · AI. Film. Future.</p>
+  </footer>
+
+  <script src="assets/config.js?v=7"></script>
+  <script src="assets/app.js?v=7"></script>
+  <script>
+    // Creator pages are data-driven only: /creator.html?u=<handle>
+    const handle = new URLSearchParams(location.search).get("u");
+    if (!handle) location.replace("index.html");
+    else loadCreator(handle);
+
+    async function loadCreator(h) {
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const r = await fetch(window.AF_CONFIG.API_BASE + "/creator.php?handle=" + encodeURIComponent(h));
+      const d = await r.json();
+      if (d.error) {
+        document.getElementById("c-name").textContent = "Creator not found";
+        document.getElementById("c-handle").textContent = "@" + h;
+        document.getElementById("c-films").innerHTML = '<p style="color:var(--muted)">This creator doesn\'t exist (yet).</p>';
+        return;
+      }
+      const c = d.creator;
+      document.title = c.display_name + " — AI Flixs";
+      document.getElementById("c-name").textContent = c.display_name;
+      document.getElementById("c-handle").textContent = "@" + c.handle + (c.bio ? " · " + c.bio : "");
+      const av = document.getElementById("c-avatar");
+      if (c.avatar_url) av.innerHTML = '<img src="' + esc(c.avatar_url) + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="" />';
+      else av.textContent = (c.display_name || "?").slice(0, 2).toUpperCase();
+      document.getElementById("c-stat-films").textContent = d.stats.films;
+      document.getElementById("c-stat-followers").textContent = d.stats.followers;
+      document.getElementById("c-stat-views").textContent = d.stats.views;
+      const g = ["g1", "g2", "g3", "g4", "g5", "g6"];
+      document.getElementById("c-films").innerHTML = d.films.length
+        ? d.films.map((f, i) => {
+            const price = Number(f.price_cents) === 0
+              ? '<span class="badge free">FREE</span>'
+              : '<span class="badge">PPV · $' + (f.price_cents / 100).toFixed(2) + "</span>";
+            return '<a class="film-card" href="watch.html?film=' + f.id + '">' +
+              '<div class="poster ' + g[i % 6] + '">' + price + "</div>" +
+              '<div class="film-meta"><h3>' + esc(f.title) + "</h3><p>" + f.views + " views</p></div></a>";
+          }).join("")
+        : '<p style="color:var(--muted)">No published films yet.</p>';
+    }
+  </script>
+</body>
+</html>
