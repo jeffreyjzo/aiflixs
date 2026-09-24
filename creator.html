@@ -6,11 +6,13 @@
   <title>Creator — AI Flixs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="stylesheet" href="assets/style.css?v=13" />
+  <meta name="theme-color" content="#030409" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 </head>
 <body>
   <nav class="nav">
-    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <a href="index.html" class="logo" aria-label="AI Flixs home"><img class="logo-mark" src="assets/logo.svg" alt="" width="40" height="32" /><span class="logo-text"><span class="logo-type"><span class="ai">AI</span> <span class="fx">FLIXS</span></span><span class="logo-tag">AI · STORY · CINEMA</span></span></a>
     <div class="nav-links">
       <a href="index.html">Browse</a>
       <a href="about.html" class="hide-sm">About</a>
@@ -39,12 +41,12 @@
   </section>
 
   <footer>
-    <div class="logo">AI FLI<span class="x">X</span>S</div>
-    <p>© 2026 AI Flixs · AI. Film. Future.</p>
+    <div class="logo"><img class="logo-mark" src="assets/logo.svg" alt="" width="32" height="26" /><span class="logo-type"><span class="ai">AI</span> <span class="fx">FLIXS</span></span></div>
+    <p>© 2026 AI Flixs · AI. Story. Cinema.</p>
   </footer>
 
-  <script src="assets/config.js?v=9"></script>
-  <script src="assets/app.js?v=9"></script>
+  <script src="assets/config.js?v=13"></script>
+  <script src="assets/app.js?v=13"></script>
   <script>
     // Creator pages are data-driven only: /creator.html?u=<handle>
     const handle = new URLSearchParams(location.search).get("u");
@@ -85,5 +87,6 @@
         : '<p style="color:var(--muted)">No published films yet.</p>';
     }
   </script>
+  <script src="assets/fx.js?v=14"></script>
 </body>
 </html>

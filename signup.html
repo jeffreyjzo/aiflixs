@@ -6,7 +6,9 @@
   <title>Join — AI Flixs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="stylesheet" href="assets/style.css?v=13" />
+  <meta name="theme-color" content="#030409" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <style>
     .roles { display: grid; gap: 12px; margin-bottom: 26px; }
     .role {
@@ -15,7 +17,7 @@
       border-radius: 14px; padding: 16px 18px; cursor: pointer; transition: border-color .15s, background .15s;
     }
     .role:hover { border-color: #3a3a42; }
-    .role.sel { border-color: var(--accent); background: rgba(224,36,43,.06); }
+    .role.sel { border-color: var(--blue); background: rgba(47,107,255,.08); box-shadow: 0 0 0 3px rgba(47,107,255,.12); }
     .role .ico { font-size: 24px; line-height: 1; }
     .role h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
     .role p { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
@@ -23,7 +25,7 @@
 </head>
 <body>
   <nav class="nav">
-    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <a href="index.html" class="logo" aria-label="AI Flixs home"><img class="logo-mark" src="assets/logo.svg" alt="" width="40" height="32" /><span class="logo-text"><span class="logo-type"><span class="ai">AI</span> <span class="fx">FLIXS</span></span><span class="logo-tag">AI · STORY · CINEMA</span></span></a>
     <div class="nav-links">
       <a href="index.html">Browse</a>
       <a href="about.html" class="hide-sm">About</a>
@@ -62,8 +64,8 @@
     </div>
   </main>
 
-  <script src="assets/config.js?v=9"></script>
-  <script src="assets/app.js?v=9"></script>
+  <script src="assets/config.js?v=13"></script>
+  <script src="assets/app.js?v=13"></script>
   <script>
     function pick(role) {
       document.getElementById("role-viewer").classList.toggle("sel", role === "viewer");
@@ -75,5 +77,6 @@
     }
     AF.setIntent("viewer");
   </script>
+  <script src="assets/fx.js?v=14"></script>
 </body>
 </html>

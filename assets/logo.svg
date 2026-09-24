@@ -1,19 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 100" role="img" aria-label="AI Flixs">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 134 106" role="img" aria-label="AI Flixs">
   <defs>
     <linearGradient id="silver" x1="0" y1="0" x2="0.35" y2="1">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="45%" stop-color="#e9ecf4"/>
-      <stop offset="70%" stop-color="#a8adbd"/>
-      <stop offset="100%" stop-color="#eef0f6"/>
+      <stop offset="45%" stop-color="#e6ebf5"/>
+      <stop offset="72%" stop-color="#9aa3b8"/>
+      <stop offset="100%" stop-color="#eef1f7"/>
     </linearGradient>
-    <linearGradient id="pb" x1="0" y1="0" x2="0.5" y2="1">
-      <stop offset="0%" stop-color="#c05bff"/>
-      <stop offset="45%" stop-color="#7c5cff"/>
-      <stop offset="100%" stop-color="#2f7cf6"/>
+    <linearGradient id="br" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#22b8ff"/>
+      <stop offset="42%" stop-color="#2f6bff"/>
+      <stop offset="100%" stop-color="#ff2d46"/>
     </linearGradient>
     <linearGradient id="play" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#a855f7"/>
-      <stop offset="100%" stop-color="#6d4aff"/>
+      <stop offset="0%" stop-color="#ff4458"/>
+      <stop offset="100%" stop-color="#d9102c"/>
     </linearGradient>
   </defs>
 
@@ -25,28 +25,24 @@
         stroke-linejoin="round" stroke-linecap="round"/>
 
   <!-- I as a film strip -->
-  <rect x="96" y="6" width="30" height="88" rx="2" fill="url(#pb)"/>
-  <g fill="#050508">
-    <rect x="100" y="12" width="6" height="7" rx="1.4"/>
-    <rect x="100" y="25" width="6" height="7" rx="1.4"/>
-    <rect x="100" y="38" width="6" height="7" rx="1.4"/>
-    <rect x="100" y="51" width="6" height="7" rx="1.4"/>
-    <rect x="100" y="64" width="6" height="7" rx="1.4"/>
-    <rect x="100" y="77" width="6" height="7" rx="1.4"/>
-    <rect x="116" y="12" width="6" height="7" rx="1.4"/>
-    <rect x="116" y="25" width="6" height="7" rx="1.4"/>
-    <rect x="116" y="38" width="6" height="7" rx="1.4"/>
-    <rect x="116" y="51" width="6" height="7" rx="1.4"/>
-    <rect x="116" y="64" width="6" height="7" rx="1.4"/>
-    <rect x="116" y="77" width="6" height="7" rx="1.4"/>
+  <rect x="96" y="6" width="30" height="88" rx="2" fill="url(#br)"/>
+  <g fill="#030409">
+    <rect x="100" y="12" width="6" height="7" rx="1.4"/><rect x="116" y="12" width="6" height="7" rx="1.4"/>
+    <rect x="100" y="25" width="6" height="7" rx="1.4"/><rect x="116" y="25" width="6" height="7" rx="1.4"/>
+    <rect x="100" y="38" width="6" height="7" rx="1.4"/><rect x="116" y="38" width="6" height="7" rx="1.4"/>
+    <rect x="100" y="51" width="6" height="7" rx="1.4"/><rect x="116" y="51" width="6" height="7" rx="1.4"/>
+    <rect x="100" y="64" width="6" height="7" rx="1.4"/><rect x="116" y="64" width="6" height="7" rx="1.4"/>
+    <rect x="100" y="77" width="6" height="7" rx="1.4"/><rect x="116" y="77" width="6" height="7" rx="1.4"/>
   </g>
 
   <!-- pixel dissolve off the top-right -->
-  <g fill="url(#pb)">
-    <rect x="119" y="0" width="7" height="7" rx="1"/>
-    <rect x="128" y="6" width="4" height="4" rx="0.8" opacity=".85"/>
-    <rect x="127" y="15" width="5" height="5" rx="1" opacity=".6"/>
-    <rect x="121" y="-8" width="5" height="5" rx="1" opacity=".7"/>
-    <rect x="129" y="-4" width="3" height="3" rx="0.6" opacity=".45"/>
+  <g fill="#22b8ff">
+    <rect x="119" y="-1" width="7" height="7" rx="1"/>
+    <rect x="121" y="-9" width="5" height="5" rx="1" opacity=".7"/>
   </g>
+  <g fill="#2f6bff">
+    <rect x="128" y="5" width="5" height="5" rx="1" opacity=".85"/>
+    <rect x="129" y="-5" width="3" height="3" rx=".6" opacity=".5"/>
+  </g>
+  <rect x="127" y="15" width="5" height="5" rx="1" fill="#ff2d46" opacity=".7"/>
 </svg>

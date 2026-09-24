@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#071426" />
-  <title>AI Flixs — Where ideas become cinema.</title>
+  <meta name="theme-color" content="#030409" />
+  <title>AI Flixs — AI. Story. Cinema.</title>
   <meta name="description" content="Discover AI-made films and the creators behind them. Watch free releases or unlock pay-per-view originals on AI Flixs." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=20260921" />
+  <link rel="stylesheet" href="assets/style.css?v=13" />
 </head>
-<body class="home-blue">
+<body>
   <a class="skip-link" href="#films">Skip to films</a>
   <nav class="nav" aria-label="Main navigation">
-    <a href="index.html" class="logo" aria-label="AI Flixs home">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <a href="index.html" class="logo" aria-label="AI Flixs home"><img class="logo-mark" src="assets/logo.svg" alt="" width="40" height="32" /><span class="logo-text"><span class="logo-type"><span class="ai">AI</span> <span class="fx">FLIXS</span></span><span class="logo-tag">AI · STORY · CINEMA</span></span></a>
     <div class="nav-links">
       <a href="index.html" class="active" aria-current="page">Browse</a>
       <a href="about.html" class="hide-sm">About</a>
@@ -21,39 +22,81 @@
       <a href="signup.html" class="btn btn-ghost">Sign in</a>
     </div>
   </nav>
+
   <main>
-    <header class="hero cinema-hero">
+    <header class="cinema-hero">
+      <canvas id="neural-canvas" aria-hidden="true"></canvas>
+
       <div class="hero-copy">
         <span class="kicker"><span class="status-dot" aria-hidden="true"></span> A new era of storytelling</span>
-        <h1>Big ideas.<br>New worlds.<br><span>Limitless cinema.</span></h1>
-        <p>Discover AI-made films and the minds behind them. An independent streaming home for stories that go beyond the expected.</p>
+        <h1 style="font-size:clamp(42px,6.6vw,82px);font-weight:800;line-height:1.02;letter-spacing:-2px;margin:20px 0">
+          Big ideas.<br>New worlds.<br><span class="grad-text" data-scramble>Limitless cinema.</span>
+        </h1>
+        <p style="color:var(--muted);font-size:18px;max-width:540px;margin-bottom:32px">Discover AI-made films and the minds behind them. An independent streaming home for stories that go beyond the expected.</p>
         <div class="hero-actions">
           <a href="#films" class="btn btn-primary"><span aria-hidden="true">▶</span> Explore films</a>
           <a href="upload.html" class="btn btn-ghost">Share your story <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="hero-note">Free releases <span aria-hidden="true">/</span> Pay-per-view originals <span aria-hidden="true">/</span> Independent creators</div>
+        <div class="hero-note">Free releases<span aria-hidden="true">/</span>Pay-per-view originals<span aria-hidden="true">/</span>Independent creators</div>
       </div>
-      <div class="cinema-art" aria-hidden="true">
-        <div class="art-topline"><span>IMAGINATION, IN MOTION</span><span>AF / 01</span></div>
-        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orb"></div>
-        <div class="art-horizon"></div>
-        <div class="art-caption"><span>BEYOND THE FRAME</span><strong>Where ideas<br>become cinema.</strong><span class="art-mark">AI FLIXS</span></div>
+
+      <div class="cinema-art" aria-hidden="true" data-parallax="-0.06">
+        <div class="sprockets top"></div>
+        <div class="art-topline"><span class="rec">REC</span><span class="timecode" data-timecode>00:00:00:00</span></div>
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <img class="art-core" src="assets/logo.svg" alt="" />
+        <div class="art-caption">
+          <span>BEYOND THE FRAME</span>
+          <strong>Where ideas<br>become cinema.</strong>
+          <span class="art-mark">AI FLIXS / AF·01</span>
+        </div>
+        <div class="sprockets bottom"></div>
       </div>
     </header>
-    <div class="discovery-bar"><span>HUMAN IMAGINATION.</span><span>AI-POWERED POSSIBILITIES.</span><span>STORIES WITHOUT LIMITS.</span></div>
+
+    <div class="marquee">
+      <div class="marquee-track">
+        <span>HUMAN IMAGINATION</span><span class="sep">◆</span>
+        <span>AI-POWERED POSSIBILITIES</span><span class="sep">◆</span>
+        <span>STORIES WITHOUT LIMITS</span><span class="sep">◆</span>
+        <span>1080P TO 4K</span><span class="sep">◆</span>
+        <span>VERTICAL &amp; WIDESCREEN</span><span class="sep">◆</span>
+        <span>INDEPENDENT CREATORS</span><span class="sep">◆</span>
+      </div>
+    </div>
+
+    <section class="section" aria-labelledby="how-heading">
+      <div class="section-head"><div><span class="eyebrow">HOW IT WORKS</span><h2 id="how-heading">From prompt to premiere.</h2></div></div>
+      <div class="features">
+        <div class="feature"><span class="num">01</span><div class="ico">🎬</div><h3>Creators upload</h3><p>Films up to 20 GB, 1080p to 4K, vertical or widescreen — streamed straight to our global video CDN.</p></div>
+        <div class="feature"><span class="num">02</span><div class="ico">🛡️</div><h3>Every film is reviewed</h3><p>A human screens each submission before it premieres, so the catalogue stays worth your time.</p></div>
+        <div class="feature"><span class="num">03</span><div class="ico">🍿</div><h3>You watch your way</h3><p>Free releases supported by ads, or unlock pay-per-view originals for seven days of unlimited viewing.</p></div>
+      </div>
+    </section>
+
     <section class="section catalogue" id="films" aria-labelledby="films-heading">
       <div class="section-head"><div><span class="eyebrow">THE SCREENING ROOM</span><h2 id="films-heading">Discover your next story.</h2></div><a href="upload.html">Bring your film here <span aria-hidden="true">↗</span></a></div>
       <div class="film-row" id="trending-grid">
         <p class="catalogue-empty">The next wave of independent cinema starts here. <a href="upload.html">Submit your film</a> for review and be part of the first releases.</p>
       </div>
     </section>
+
     <section class="creator-callout" aria-labelledby="creator-heading">
-      <div><span class="eyebrow">FOR THE WORLD BUILDERS</span><h2 id="creator-heading">Your imagination.<br>Our next premiere.</h2><p>Give your film a home and your audience a place to find you. Build your creator profile and submit your work for review.</p></div>
+      <div><span class="eyebrow">FOR THE WORLD BUILDERS</span><h2 id="creator-heading">Your imagination.<br>Our next premiere.</h2><p>Give your film a home and your audience a place to find you. Build your creator profile, set your own price, and track every view.</p></div>
       <a class="btn btn-primary" href="upload.html">Become a creator <span aria-hidden="true">↗</span></a>
     </section>
   </main>
-  <footer><div class="logo">AI FLI<span class="x">X</span>S</div><p>Where ideas become cinema.</p><div class="footer-links"><a href="about.html">About AI Flixs</a><a href="upload.html">For creators</a><a href="signup.html">Join the audience</a></div><p>© 2026 AI Flixs · AI. Film. Future.</p></footer>
-  <script src="assets/config.js?v=9"></script>
-  <script src="assets/app.js?v=9"></script>
+
+  <footer>
+    <div class="logo"><img class="logo-mark" src="assets/logo.svg" alt="" width="32" height="26" /><span class="logo-type"><span class="ai">AI</span> <span class="fx">FLIXS</span></span></div>
+    <p>Where ideas become cinema.</p>
+    <div class="footer-links"><a href="about.html">About AI Flixs</a><a href="upload.html">For creators</a><a href="signup.html">Join the audience</a></div>
+    <p>© 2026 AI Flixs · AI. Story. Cinema.</p>
+  </footer>
+
+  <script src="assets/config.js?v=13"></script>
+  <script src="assets/app.js?v=13"></script>
+  <script src="assets/fx.js?v=14"></script>
 </body>
 </html>

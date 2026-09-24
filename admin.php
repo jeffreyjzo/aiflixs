@@ -25,24 +25,26 @@ if (!$is_admin) {
   <title>Admin — AI Flixs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="stylesheet" href="assets/style.css?v=13" />
+  <meta name="theme-color" content="#030409" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <style>
     .admin-wrap { max-width: 1080px; margin: 0 auto; padding: 110px 20px 80px; }
     .admin-wrap h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
     .admin-wrap .sub { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
     .tabs { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
     .alert {
-      background: rgba(224,36,43,.12); border: 1px solid var(--accent);
+      background: rgba(255,45,70,.10); border: 1px solid rgba(255,45,70,.55);
       border-radius: 12px; padding: 14px 18px; margin-bottom: 22px; font-size: 14px;
     }
-    .alert a { color: var(--accent-hover); font-weight: 600; }
+    .alert a { color: #ff6b7d; font-weight: 600; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 30px; }
     .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
     .kpi strong { display: block; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 2px; }
     .kpi span { font-size: 12.5px; color: var(--muted); }
     .kpi .delta { font-size: 11.5px; color: #7dd97d; display: block; margin-top: 4px; }
     .kpi.hero strong { color: #7dd97d; }
-    .kpi.warn strong { color: var(--accent-hover); }
+    .kpi.warn strong { color: var(--red); }
     .kpi.click { cursor: pointer; transition: border-color .15s, transform .15s; }
     .kpi.click:hover { border-color: var(--accent); transform: translateY(-2px); }
 
@@ -69,7 +71,7 @@ if (!$is_admin) {
     table.t tr:last-child td { border-bottom: 0; }
     .chart { display: flex; align-items: flex-end; gap: 5px; height: 110px; padding-top: 10px; }
     .chart .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .chart .bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 3px; }
+    .chart .bar { width: 100%; background: var(--grad); border-radius: 4px 4px 0 0; min-height: 3px; }
     .chart .lbl { font-size: 9.5px; color: var(--muted); }
     .queue-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
     .queue-card h2 { font-size: 18px; }
@@ -78,10 +80,10 @@ if (!$is_admin) {
     .queue-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .btn-approve { background: #1d7a3d; color: #fff; }
     .btn-approve:hover { background: #249649; }
-    .btn-reject { background: transparent; color: var(--accent-hover); border-color: var(--accent); }
+    .btn-reject { background: transparent; color: #ff6b7d; border-color: rgba(255,45,70,.55); }
     .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); margin-left: 8px; }
     .pill.live { background: rgba(29,122,61,.25); color: #7dd97d; }
-    .pill.wait { background: rgba(224,36,43,.15); color: var(--accent-hover); }
+    .pill.wait { background: rgba(255,45,70,.14); color: #ff6b7d; }
 
     /* ---- Review card with click-to-play thumbnail ---- */
     .rev { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -130,9 +132,9 @@ if (!$is_admin) {
     .player-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   </style>
 </head>
-<body>
+<body data-fx="lite">
   <nav class="nav">
-    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <a href="index.html" class="logo" aria-label="AI Flixs home"><img class="logo-mark" src="assets/logo.svg" alt="" width="40" height="32" /><span class="logo-text"><span class="logo-type"><span class="ai">AI</span> <span class="fx">FLIXS</span></span><span class="logo-tag">AI · STORY · CINEMA</span></span></a>
     <div class="nav-links">
       <a href="index.html">Browse</a>
       <a href="admin.php" class="active">Admin</a>
@@ -171,8 +173,8 @@ if (!$is_admin) {
     </div>
   </div>
 
-  <script src="assets/config.js?v=11"></script>
-  <script src="assets/app.js?v=11"></script>
+  <script src="assets/config.js?v=13"></script>
+  <script src="assets/app.js?v=13"></script>
   <script>
     const API = window.AF_CONFIG.API_BASE;
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
@@ -527,5 +529,6 @@ if (!$is_admin) {
 
     loadOverview(); loaded.overview = true;
   </script>
+  <script src="assets/fx.js?v=14"></script>
 </body>
 </html>
