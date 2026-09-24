@@ -4,9 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Submit your film — AI Flixs</title>
+  <meta name="description" content="Publish your AI film on AI Flixs. Get a creator page, set your own price, and reach an audience." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .pitch { max-width: 720px; margin: 0 auto; padding: 140px 20px 80px; text-align: center; }
+    .pitch .kicker { color: var(--accent); font-weight: 700; letter-spacing: 4px; font-size: 12px; text-transform: uppercase; }
+    .pitch h1 { font-size: clamp(32px, 5vw, 48px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin: 14px 0 16px; }
+    .pitch .lede { color: var(--muted); font-size: 17px; margin-bottom: 34px; }
+    .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 30px; text-align: left; }
+    .rule { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; font-size: 13px; color: var(--muted); }
+    .rule strong { display: block; color: var(--text); font-size: 16px; margin-bottom: 2px; }
+    .perks { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; margin-bottom: 30px; }
+    .perks li { color: var(--muted); font-size: 14.5px; margin-bottom: 9px; }
+    .perks li:last-child { margin-bottom: 0; }
+    .perks b { color: var(--text); }
+  </style>
 </head>
 <body>
   <nav class="nav">
@@ -19,53 +33,56 @@
     </div>
   </nav>
 
-  <main class="upload-wrap">
-    <h1>Submit your film</h1>
-    <p class="sub">Upload your AI film for review. Once approved it goes live on your creator page.</p>
+  <main class="pitch">
+    <span class="kicker">For creators</span>
+    <h1>Put your AI film in front of an audience.</h1>
+    <p class="lede">Get your own creator page, set your own price, and track every view and unlock from your studio dashboard.</p>
 
     <div class="rules">
-      <div class="rule"><strong>1 film</strong>per creator (for now)</div>
-      <div class="rule"><strong>20 GB</strong>maximum file size</div>
+      <div class="rule"><strong>20 GB</strong>max file size</div>
       <div class="rule"><strong>1080p</strong>minimum resolution</div>
       <div class="rule"><strong>4K</strong>maximum resolution</div>
+      <div class="rule"><strong>↕ ↔</strong>vertical &amp; horizontal</div>
     </div>
 
-    <form id="upload-form">
-      <div class="dropzone" id="dropzone">
-        <div class="icon">🎬</div>
-        <p><span class="browse">Choose a video</span> or drag &amp; drop it here</p>
-        <p style="font-size:12px; margin-top:6px">MP4, MOV or WebM · checked instantly, nothing uploads until you submit</p>
-        <input type="file" id="file-input" accept="video/*" hidden />
-      </div>
-      <p class="file-status" id="file-status"></p>
+    <ul class="perks">
+      <li>🎬 <b>Your own page</b> — films, followers, and view counts at your handle.</li>
+      <li>💰 <b>Your price</b> — free with ads, or $2.99–$100 per unlock. Viewers get 7-day access.</li>
+      <li>📊 <b>Live analytics</b> — views, unique viewers, unlocks, and revenue in your studio.</li>
+      <li>⚡ <b>Resumable uploads</b> — big files stream straight to our CDN and survive dropped connections.</li>
+      <li>✅ <b>Human review</b> — every film is checked before it goes live.</li>
+    </ul>
 
-      <div class="field">
-        <label for="title">Film title</label>
-        <input id="title" type="text" placeholder="e.g. Neon Genesis City" required />
-      </div>
-      <div class="field">
-        <label for="desc">Synopsis</label>
-        <textarea id="desc" rows="3" placeholder="One or two sentences about your film" required></textarea>
-      </div>
-      <div class="field">
-        <label for="pricing-mode">Pricing</label>
-        <select id="pricing-mode">
-          <option value="free">Free to watch (with ads)</option>
-          <option value="paid">Pay-per-view — set your own price</option>
-        </select>
-      </div>
-      <div class="field" id="price-field" style="display:none">
-        <label for="price">Your price (USD $2.99 – $100) — viewers get 7-day access</label>
-        <input id="price" type="number" min="2.99" max="100" step="0.01" placeholder="e.g. 4.99" />
-      </div>
-
-      <div class="progress" id="progress"><div class="bar"></div></div>
-      <button type="submit" class="btn btn-primary btn-block" id="submit-btn" disabled>Submit for review</button>
-    </form>
+    <div id="cta"><p style="color:var(--muted)">Loading…</p></div>
   </main>
 
-  <script src="assets/config.js?v=7"></script>
-  <script src="assets/app.js?v=7"></script>
-  <script src="assets/upload.js?v=7"></script>
+  <footer>
+    <div class="logo">AI FLI<span class="x">X</span>S</div>
+    <p>© 2026 AI Flixs · AI. Film. Future.</p>
+  </footer>
+
+  <script src="assets/config.js?v=9"></script>
+  <script src="assets/app.js?v=9"></script>
+  <script>
+    // Route creators into their studio (where the uploader lives), and
+    // everyone else into the right sign-up path.
+    (async () => {
+      const cta = document.getElementById("cta");
+      let user = null;
+      try { user = (await (await fetch(window.AF_CONFIG.API_BASE + "/auth.php")).json()).user; } catch (_) {}
+
+      if (user && Number(user.is_creator) === 1) {
+        location.replace("dashboard.html");
+        return;
+      }
+      if (user) {
+        cta.innerHTML = '<button class="btn btn-primary" onclick="AF.becomeCreator()">Switch on creator mode →</button>' +
+          '<p style="color:var(--muted);font-size:13px;margin-top:12px">Adds a creator page to your account. Nothing else changes.</p>';
+        return;
+      }
+      cta.innerHTML = '<a class="btn btn-primary" href="signup.html" onclick="AF.setIntent(\'creator\')">Join as a creator →</a>' +
+        '<p style="color:var(--muted);font-size:13px;margin-top:12px">Free to join with Google. Takes about 30 seconds.</p>';
+    })();
+  </script>
 </body>
 </html>

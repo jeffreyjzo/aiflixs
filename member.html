@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My profile — AI Flixs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .member-stats { display: flex; gap: 28px; padding: 22px 40px; border-bottom: 1px solid var(--border); }
+    .unlock-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 8px 16px; margin: 0 8px 8px 0; font-size: 13px; }
+    .unlock-chip .exp { color: var(--muted); font-size: 12px; }
+    @media (max-width: 640px) { .member-stats { padding-left: 20px; padding-right: 20px; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Browse</a>
+      <a href="member.html" class="active hide-sm">My profile</a>
+      <a href="dashboard.html" id="studio-link" style="display:none">Creator Studio</a>
+      <a href="#" class="btn btn-ghost" style="padding:8px 18px" onclick="AF.signOut(); return false;">Sign out</a>
+    </div>
+  </nav>
+
+  <div class="profile-banner"></div>
+  <div class="profile-head">
+    <span class="avatar avatar-lg g3" id="m-avatar"></span>
+    <div class="profile-info">
+      <h1 id="m-name">Loading…</h1>
+      <p class="handle" id="m-handle"></p>
+    </div>
+  </div>
+  <div class="member-stats">
+    <div class="stat"><strong id="m-watched">–</strong><span>Watched</span></div>
+    <div class="stat"><strong id="m-unlocks">–</strong><span>Active unlocks</span></div>
+    <div class="stat"><strong id="m-since">–</strong><span>Member since</span></div>
+  </div>
+
+  <section class="section" id="unlocks-section" style="display:none">
+    <div class="section-head"><h2>Active unlocks</h2></div>
+    <div id="m-unlock-chips"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Watched</h2></div>
+    <div class="film-row" id="m-history"><p style="color:var(--muted)">Loading…</p></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Suggested for you</h2></div>
+    <div class="film-row" id="m-suggested"></div>
+  </section>
+
+  <script src="assets/config.js?v=9"></script>
+  <script src="assets/app.js?v=9"></script>
+  <script>
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const g = ["g1", "g2", "g3", "g4", "g5", "g6"];
+    const card = (f, i) => {
+      const price = Number(f.price_cents) === 0
+        ? '<span class="badge free">FREE</span>'
+        : '<span class="badge">PPV · $' + (f.price_cents / 100).toFixed(2) + "</span>";
+      return '<a class="film-card" href="watch.html?film=' + f.id + '">' +
+        '<div class="poster ' + g[i % 6] + '">' + price + "</div>" +
+        '<div class="film-meta"><h3>' + esc(f.title) + "</h3><p>by @" + esc(f.handle) + "</p></div></a>";
+    };
+
+    async function loadMember() {
+      const r = await fetch(window.AF_CONFIG.API_BASE + "/member.php");
+      const d = await r.json();
+      if (d.error === "not_signed_in") { location.href = "signup.html"; return; }
+
+      const p = d.profile;
+      document.getElementById("m-name").textContent = p.display_name;
+      document.getElementById("m-handle").textContent = "@" + p.handle;
+      const av = document.getElementById("m-avatar");
+      if (p.avatar_url) av.innerHTML = '<img src="' + esc(p.avatar_url) + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="" />';
+      else av.textContent = (p.display_name || "?").slice(0, 2).toUpperCase();
+      if (Number(p.is_creator) === 1) document.getElementById("studio-link").style.display = "";
+
+      document.getElementById("m-watched").textContent = d.history.length;
+      document.getElementById("m-unlocks").textContent = d.unlocks.length;
+      document.getElementById("m-since").textContent = (p.created_at || "").slice(0, 10);
+
+      if (d.unlocks.length) {
+        document.getElementById("unlocks-section").style.display = "";
+        document.getElementById("m-unlock-chips").innerHTML = d.unlocks.map((u) =>
+          '<a class="unlock-chip" href="watch.html?film=' + u.id + '">🔓 ' + esc(u.title) +
+          '<span class="exp">ends ' + esc((u.expires_at || "").slice(0, 10)) + "</span></a>").join("");
+      }
+
+      document.getElementById("m-history").innerHTML = d.history.length
+        ? d.history.map(card).join("")
+        : '<p style="color:var(--muted)">Nothing watched yet — <a href="index.html" style="color:var(--accent)">browse films</a> to get started.</p>';
+
+      document.getElementById("m-suggested").innerHTML = d.suggested.length
+        ? d.suggested.map(card).join("")
+        : '<p style="color:var(--muted)">More films are on the way — check back soon.</p>';
+    }
+    loadMember();
+  </script>
+</body>
+</html>

@@ -47,8 +47,8 @@
     <div class="watch-meta" id="watch-meta"></div>
   </main>
 
-  <script src="assets/config.js?v=7"></script>
-  <script src="assets/app.js?v=7"></script>
+  <script src="assets/config.js?v=9"></script>
+  <script src="assets/app.js?v=9"></script>
   <script>
     const filmId = parseInt(new URLSearchParams(location.search).get("film"), 10);
     const area = document.getElementById("player-area");
@@ -75,7 +75,11 @@
         (d.expires_at ? '<p class="access-note">✓ Unlocked — your access ends ' + esc(d.expires_at) + " (UTC)</p>" : "");
 
       if (d.can_watch && d.embed_url) {
-        area.innerHTML = '<iframe class="player-frame" src="' + d.embed_url +
+        // Vertical films get a portrait player, centered like a social feed
+        const vertical = f.orientation === "vertical";
+        const ratio = (f.width && f.height) ? f.width + " / " + f.height : (vertical ? "9 / 16" : "16 / 9");
+        const style = "aspect-ratio:" + ratio + (vertical ? ";max-width:min(430px,100%);margin:0 auto" : "");
+        area.innerHTML = '<iframe class="player-frame" style="' + style + '" src="' + d.embed_url +
           '" loading="lazy" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture" allowfullscreen></iframe>';
         // Free + ads model: show an ad unit under free films once the ad
         // network client ID is configured in assets/config.js

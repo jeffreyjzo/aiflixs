@@ -26,8 +26,14 @@ if ($shortSide < MIN_RES) json_out(['error' => 'resolution_too_low'], 400);
 if ($shortSide > MAX_RES) json_out(['error' => 'resolution_too_high'], 400);
 
 try {
-  $mine = db_query('SELECT id FROM films WHERE creator_id = ?', [$_SESSION['uid']]);
-  if ($mine) json_out(['error' => 'one_film_limit'], 409);
+  // Per-account film slots (admins can raise this from the dashboard)
+  $prof = db_query('SELECT COALESCE(film_slots, 1) AS slots, COALESCE(suspended, 0) AS suspended FROM profiles WHERE id = ?', [$_SESSION['uid']]);
+  if (!$prof) json_out(['error' => 'no_profile'], 404);
+  if ((int) $prof[0]['suspended'] === 1) json_out(['error' => 'account_suspended'], 403);
+
+  $slots = max(1, (int) $prof[0]['slots']);
+  $used  = (int) (db_query('SELECT COUNT(*) AS n FROM films WHERE creator_id = ?', [$_SESSION['uid']])[0]['n'] ?? 0);
+  if ($used >= $slots) json_out(['error' => 'slot_limit', 'slots' => $slots, 'used' => $used], 409);
 
   db_query(
     'INSERT INTO films (creator_id, title, synopsis, price_cents, status, width, height, size_bytes)

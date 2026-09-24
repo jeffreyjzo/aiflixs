@@ -1,4 +1,4 @@
-// AI Flixs — shared app logic: Google sign-in + session
+// AI Flixs — shared app logic: Google sign-in, session, role-aware nav
 (function () {
   const cfg = window.AF_CONFIG || {};
   const live = !!cfg.GOOGLE_CLIENT_ID;
@@ -7,18 +7,20 @@
     live,
     user: null,
 
+    get isCreator() {
+      return !!(this.user && Number(this.user.is_creator) === 1);
+    },
+
     async init() {
       this.loadFilms();
       if (!live) return this.showDemoBanner();
 
-      // Load current session
       try {
         const r = await fetch(cfg.API_BASE + "/auth.php");
         this.user = (await r.json()).user;
-        if (this.user) this.reflectUser();
       } catch (_) {}
+      this.reflectUser();
 
-      // Load Google Identity Services
       const s = document.createElement("script");
       s.src = "https://accounts.google.com/gsi/client";
       s.async = true;
@@ -27,22 +29,119 @@
           client_id: cfg.GOOGLE_CLIENT_ID,
           callback: (resp) => this.onGoogleCredential(resp),
         });
-        // Render Google's official button (popup flow — works even when
-        // One Tap / FedCM is unavailable). Falls back to the styled button.
-        const slot = document.getElementById("gsi-button");
-        if (slot) {
-          google.accounts.id.renderButton(slot, {
+        const holder = document.getElementById("gsi-button");
+        if (holder) {
+          google.accounts.id.renderButton(holder, {
             theme: "filled_black", size: "large", shape: "pill",
-            text: "continue_with", width: 360,
+            text: "continue_with", width: 320,
           });
           const fb = document.getElementById("google-fallback");
-          if (fb && slot.childNodes.length) fb.style.display = "none";
+          if (fb) fb.style.display = "none";
         }
       };
       document.head.appendChild(s);
     },
 
-    // Swap the homepage showcase for real films once creators have published
+    signInWithGoogle() {
+      if (!live) return this.demoNotice("Google sign-in");
+      google.accounts.id.prompt();
+    },
+
+    // Remember whether they signed up to watch or to create
+    setIntent(role) {
+      try { sessionStorage.setItem("af_intent", role); } catch (_) {}
+    },
+
+    async onGoogleCredential(resp) {
+      const r = await fetch(cfg.API_BASE + "/auth.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: resp.credential }),
+      });
+      const d = await r.json();
+      if (!d.user) return alert("Sign-in failed: " + (d.error || "unknown error"));
+      this.user = d.user;
+
+      let intent = null;
+      try { intent = sessionStorage.getItem("af_intent"); sessionStorage.removeItem("af_intent"); } catch (_) {}
+
+      if (intent === "creator" && !this.isCreator) {
+        const p = await fetch(cfg.API_BASE + "/profile.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ become_creator: true }),
+        });
+        const pd = await p.json();
+        if (pd.user) this.user = pd.user;
+      }
+
+      this.routeAfterAuth(intent);
+    },
+
+    routeAfterAuth(intent) {
+      const onAuthPage = /signup\.html$/.test(location.pathname) || location.pathname.endsWith("/signup.html");
+      if (intent === "creator" || this.isCreator) {
+        if (onAuthPage) location.href = "dashboard.html";
+        else location.reload();
+        return;
+      }
+      if (onAuthPage) location.href = "index.html";
+      else location.reload();
+    },
+
+    async becomeCreator() {
+      if (!this.live) return this.demoNotice("Creator mode");
+      if (!this.user) { this.setIntent("creator"); location.href = "signup.html"; return; }
+      const r = await fetch(cfg.API_BASE + "/profile.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ become_creator: true }),
+      });
+      const d = await r.json();
+      if (d.user) { this.user = d.user; location.href = "dashboard.html"; }
+      else alert("Couldn't switch on creator mode: " + (d.error || "unknown"));
+    },
+
+    async signOut() {
+      await fetch(cfg.API_BASE + "/auth.php", { method: "DELETE" });
+      location.href = "index.html";
+    },
+
+    signUpWithEmail() {
+      alert("Email sign-up is coming soon — please use Google for now.");
+    },
+
+    // Swap the "Sign in" button for the signed-in user's own menu, and
+    // surface Creator Studio only to creators.
+    reflectUser() {
+      const nav = document.querySelector(".nav-links");
+      if (!nav || !this.user) return;
+
+      const signIn = nav.querySelector('a[href="signup.html"]');
+      if (signIn) {
+        signIn.textContent = this.user.display_name || "My profile";
+        signIn.href = "member.html";
+        signIn.onclick = null;
+      }
+
+      if (this.isCreator && !nav.querySelector('a[href="dashboard.html"]')) {
+        const studio = document.createElement("a");
+        studio.href = "dashboard.html";
+        studio.textContent = "Creator Studio";
+        studio.className = "hide-sm";
+        nav.insertBefore(studio, signIn || null);
+      }
+
+      // Viewers see "Become a creator" instead of a raw submit link
+      const submit = nav.querySelector('a[href="upload.html"]');
+      if (submit && !this.isCreator) {
+        submit.textContent = "Become a creator";
+        submit.href = "#";
+        submit.onclick = (e) => { e.preventDefault(); this.becomeCreator(); };
+      }
+    },
+
+    // Homepage grid — real films replace the placeholder once published
     async loadFilms() {
       const grid = document.getElementById("trending-grid");
       if (!grid) return;
@@ -51,7 +150,7 @@
       try {
         const r = await fetch(cfg.API_BASE + "/films.php");
         const films = (await r.json()).films || [];
-        if (!films.length) return; // keep showcase content until real films exist
+        if (!films.length) return;
         const g = ["g1", "g2", "g3", "g4", "g5", "g6"];
         grid.innerHTML = films.map((f, i) => {
           const price = Number(f.price_cents) === 0
@@ -64,7 +163,6 @@
       } catch (_) {}
     },
 
-    // Pay-per-view: create a Stripe Checkout session and send the viewer there
     async unlockFilm(filmId) {
       if (!this.live) return this.demoNotice("Checkout (Stripe)");
       if (!this.user) { location.href = "signup.html"; return; }
@@ -76,68 +174,24 @@
       const d = await r.json();
       if (d.url) location.href = d.url;
       else if (d.error === "stripe_not_configured") alert("Payments are almost live — check back soon.");
-      else if (d.error === "already_owned") alert("You already own this film — enjoy!");
+      else if (d.error === "already_owned") alert("You already have access to this film — enjoy!");
       else if (d.error === "film_not_found") alert("This film isn't available for purchase yet.");
       else alert("Checkout failed: " + (d.error || "unknown error"));
     },
 
-    signInWithGoogle() {
-      if (!live) return this.demoNotice("Google sign-in");
-      google.accounts.id.prompt();
-    },
-
-    async onGoogleCredential(resp) {
-      const r = await fetch(cfg.API_BASE + "/auth.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: resp.credential }),
-      });
-      const d = await r.json();
-      if (d.user) {
-        this.user = d.user;
-        this.reflectUser();
-        if (location.pathname.endsWith("signup.html")) location.href = "index.html";
-      } else {
-        alert("Sign-in failed: " + (d.error || "unknown error"));
-      }
-    },
-
-    async signOut() {
-      await fetch(cfg.API_BASE + "/auth.php", { method: "DELETE" });
-      location.reload();
-    },
-
-    signUpWithEmail() {
-      alert("Email sign-up is coming soon — please use Google for now.");
-    },
-
-    reflectUser() {
-      const btn = document.querySelector(".nav-links .btn");
-      if (btn && this.user) {
-        btn.textContent = this.user.display_name || "Account";
-        btn.href = "#";
-        btn.onclick = (e) => { e.preventDefault(); if (confirm("Sign out?")) this.signOut(); };
-      }
-    },
-
     demoNotice(feature) {
-      alert(
-        feature + " is not wired up yet - this is the demo build.\n\n" +
-        "Add your Google OAuth client ID in assets/config.js and api/config.php to go live."
-      );
+      alert(feature + " is not wired up yet - this is the demo build.");
     },
 
     showDemoBanner() {
       const add = () => {
         const b = document.createElement("div");
         b.className = "demo-banner";
-        b.innerHTML =
-          "<strong>Demo mode</strong> &mdash; add the Google client ID in <code>assets/config.js</code> to enable sign-ins.";
+        b.innerHTML = "<strong>Demo mode</strong> &mdash; add the Google client ID in <code>assets/config.js</code>.";
         document.body.appendChild(b);
       };
       document.readyState === "loading"
-        ? document.addEventListener("DOMContentLoaded", add)
-        : add();
+        ? document.addEventListener("DOMContentLoaded", add) : add();
     },
   };
 

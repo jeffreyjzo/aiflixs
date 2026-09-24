@@ -6,6 +6,9 @@
   const status = document.getElementById("file-status");
   const submitBtn = document.getElementById("submit-btn");
   const progress = document.getElementById("progress");
+  // The submission form is embedded in both upload.html and the Creator
+  // Studio — bail out quietly on pages that don't include it.
+  if (!drop || !input || !progress || !submitBtn) return;
   const bar = progress.querySelector(".bar");
   let validFile = null;
 
@@ -181,9 +184,11 @@
         const d = await r.json();
         if (d.ok) {
           startVideoUpload();
-        } else if (d.error === "one_film_limit") {
-          setStatus("You already have a film on AI Flixs — one film per creator for now.", false);
+        } else if (d.error === "slot_limit") {
+          setStatus("You've used all " + d.slots + " of your film slots. Ask an admin to raise your limit.", false);
           submitBtn.disabled = false;
+        } else if (d.error === "account_suspended") {
+          setStatus("This account is suspended and can't submit films.", false);
         } else {
           setStatus("Submission failed: " + (d.error || "unknown error"), false);
           submitBtn.disabled = false;

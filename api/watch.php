@@ -10,7 +10,7 @@ if (!$filmId) json_out(['error' => 'missing_film'], 400);
 try {
   $rows = db_query(
     "SELECT f.id, f.title, f.synopsis, f.price_cents, f.status, f.bunny_video_id, f.views, f.creator_id,
-            p.handle, p.display_name, p.avatar_url
+            f.width, f.height, p.handle, p.display_name, p.avatar_url
      FROM films f JOIN profiles p ON p.id = f.creator_id WHERE f.id = ?",
     [$filmId]
   );
@@ -39,6 +39,8 @@ try {
       'id' => (int) $f['id'], 'title' => $f['title'], 'synopsis' => $f['synopsis'],
       'price_cents' => (int) $f['price_cents'], 'status' => $f['status'],
       'handle' => $f['handle'], 'display_name' => $f['display_name'], 'views' => (int) $f['views'],
+      'width' => (int) $f['width'], 'height' => (int) $f['height'],
+      'orientation' => ((int) $f['height'] > (int) $f['width']) ? 'vertical' : 'horizontal',
     ],
     'signed_in' => (bool) $uid,
     'can_watch' => $canWatch,
@@ -48,6 +50,10 @@ try {
   if ($canWatch && $f['bunny_video_id']) {
     $out['embed_url'] = 'https://iframe.mediadelivery.net/embed/' . BUNNY_STREAM_LIBRARY_ID . '/' . $f['bunny_video_id'];
     db_query('UPDATE films SET views = views + 1 WHERE id = ?', [$filmId]);
+    // Member watch history (feeds the member page + creator analytics)
+    if ($uid) {
+      db_query('INSERT OR REPLACE INTO watch_history (user_id, film_id) VALUES (?, ?)', [$uid, $filmId]);
+    }
   }
   json_out($out);
 } catch (Throwable $e) {

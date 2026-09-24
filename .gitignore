@@ -11,3 +11,6 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+
+# Local auth scratch files
+.gh_*

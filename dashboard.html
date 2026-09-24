@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Studio — AI Flixs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .studio { max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 26px 0 34px; }
+    .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .tile strong { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+    .tile span { font-size: 12px; color: var(--muted); }
+    .tile.money strong { color: #7dd97d; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 26px; margin-bottom: 20px; }
+    .panel h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .panel .hint { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; }
+    .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); margin-right: 6px; }
+    .pill.live { background: rgba(29,122,61,.25); color: #7dd97d; }
+    .pill.wait { background: rgba(224,36,43,.15); color: var(--accent-hover); }
+    .unlock-row { display: flex; justify-content: space-between; gap: 10px; padding: 12px 16px; background: var(--surface-2); border-radius: 10px; margin-bottom: 8px; font-size: 13.5px; }
+    .unlock-row span { color: var(--muted); font-size: 12.5px; }
+    .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 22px; }
+    .rule { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 12.5px; color: var(--muted); }
+    .rule strong { display: block; color: var(--text); font-size: 15px; margin-bottom: 2px; }
+    .film-hero { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+    .film-hero .thumb { width: 120px; aspect-ratio: 2/3; border-radius: 10px; flex: 0 0 auto; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="logo">AI FLI<span class="x">X</span>S<span class="logo-tag">AI · FILM · FUTURE</span></a>
+    <div class="nav-links">
+      <a href="index.html">Browse</a>
+      <a href="member.html" class="hide-sm">My profile</a>
+      <a href="dashboard.html" class="active">Creator Studio</a>
+      <a href="#" class="btn btn-ghost" style="padding:8px 18px" onclick="AF.signOut(); return false;">Sign out</a>
+    </div>
+  </nav>
+
+  <div class="profile-banner"></div>
+  <div class="profile-head">
+    <span class="avatar avatar-lg g4" id="d-avatar"></span>
+    <div class="profile-info">
+      <h1 id="d-name">Loading…</h1>
+      <p class="handle" id="d-handle"></p>
+    </div>
+    <div class="profile-actions">
+      <a class="btn btn-ghost" id="d-public" href="#" style="display:none">View public page</a>
+    </div>
+  </div>
+
+  <main class="studio">
+    <div class="tiles" id="tiles"></div>
+    <div id="film-panel"></div>
+    <div id="unlocks-panel"></div>
+  </main>
+
+  <script src="assets/config.js?v=11"></script>
+  <script src="assets/app.js?v=11"></script>
+  <script>
+    const API = window.AF_CONFIG.API_BASE;
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const money = (c) => "$" + (c / 100).toFixed(2);
+    const gb = (b) => (b / 1024 ** 3).toFixed(2) + " GB";
+
+    const UPLOAD_FORM = `
+      <div class="panel">
+        <h2>🎬 Upload a film</h2>
+        <p class="hint">__SLOTS__ Your video uploads straight from this page to our streaming CDN — big files are fine, and the upload resumes if your connection drops.</p>
+        <div class="rules">
+          <div class="rule"><strong>20 GB</strong>max file size</div>
+          <div class="rule"><strong>1080p</strong>minimum</div>
+          <div class="rule"><strong>4K</strong>maximum</div>
+          <div class="rule"><strong>↕ ↔</strong>vertical or horizontal</div>
+        </div>
+        <form id="upload-form">
+          <div class="dropzone" id="dropzone">
+            <div class="icon">🎬</div>
+            <p><span class="browse">Choose a video</span> or drag &amp; drop it here</p>
+            <p style="font-size:12px; margin-top:6px">MP4, MOV or WebM · checked instantly, nothing uploads until you submit</p>
+            <input type="file" id="file-input" accept="video/*" hidden />
+          </div>
+          <p class="file-status" id="file-status"></p>
+          <div class="field">
+            <label for="title">Film title</label>
+            <input id="title" type="text" placeholder="e.g. Neon Genesis City" required />
+          </div>
+          <div class="field">
+            <label for="desc">Synopsis</label>
+            <textarea id="desc" rows="3" placeholder="One or two sentences about your film" required></textarea>
+          </div>
+          <div class="field">
+            <label for="pricing-mode">Pricing</label>
+            <select id="pricing-mode">
+              <option value="free">Free to watch (with ads)</option>
+              <option value="paid">Pay-per-view — set your own price</option>
+            </select>
+          </div>
+          <div class="field" id="price-field" style="display:none">
+            <label for="price">Your price (USD $2.99 – $100) — viewers get 7-day access</label>
+            <input id="price" type="number" min="2.99" max="100" step="0.01" placeholder="e.g. 4.99" />
+          </div>
+          <div class="progress" id="progress"><div class="bar"></div></div>
+          <button type="submit" class="btn btn-primary btn-block" id="submit-btn" disabled>Submit for review</button>
+        </form>
+      </div>`;
+
+    async function loadStudio() {
+      const d = await (await fetch(API + "/dashboard.php")).json();
+      if (d.error === "not_signed_in") { AF.setIntent("creator"); location.href = "signup.html"; return; }
+      if (d.error) { document.getElementById("film-panel").innerHTML =
+        '<div class="panel"><p style="color:var(--muted)">Couldn\'t load your studio: ' + esc(d.error) + "</p></div>"; return; }
+
+      const p = d.profile, a = d.analytics;
+      document.getElementById("d-name").textContent = p.display_name;
+      document.getElementById("d-handle").textContent = "@" + p.handle + (p.bio ? " · " + p.bio : "");
+      const av = document.getElementById("d-avatar");
+      if (p.avatar_url) av.innerHTML = '<img src="' + esc(p.avatar_url) + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="" />';
+      else av.textContent = (p.display_name || "?").slice(0, 2).toUpperCase();
+
+      const pub = document.getElementById("d-public");
+      pub.href = "creator.html?u=" + encodeURIComponent(p.handle);
+      pub.style.display = "";
+
+      document.getElementById("tiles").innerHTML =
+        '<div class="tile"><strong>' + a.views + "</strong><span>Views</span></div>" +
+        '<div class="tile"><strong>' + a.unique_viewers + "</strong><span>Unique viewers</span></div>" +
+        '<div class="tile"><strong>' + a.unlocks + "</strong><span>Unlocks sold</span></div>" +
+        '<div class="tile money"><strong>' + money(a.revenue_cents) + "</strong><span>Revenue</span></div>" +
+        '<div class="tile"><strong>' + d.followers + "</strong><span>Followers</span></div>";
+
+      const panel = document.getElementById("film-panel");
+      const s = d.slots;
+      const g = ["g1", "g2", "g3", "g4", "g5", "g6"];
+      let html = "";
+
+      if (d.films.length) {
+        html += '<div class="panel"><h2>Your films <span class="pill">' + s.used + " / " + s.total + " slots used</span></h2>";
+        html += d.films.map((f, i) => {
+          const statusPill = f.status === "approved" ? '<span class="pill live">● LIVE</span>'
+            : f.status === "rejected" ? '<span class="pill wait">REJECTED</span>'
+            : '<span class="pill wait">' + esc(String(f.status).replace("_", " ").toUpperCase()) + "</span>";
+          const note = f.status === "pending_upload" ? "Video hasn't finished uploading yet."
+            : f.status === "pending_review" ? "Submitted — we're reviewing it. It goes live once approved."
+            : f.status === "rejected" ? "This film was rejected. Contact support if you think that's a mistake."
+            : "Live and streaming.";
+          return '<div class="film-hero" style="margin-top:' + (i ? "22px;border-top:1px solid var(--border);padding-top:22px" : "0") + '">' +
+            '<div class="thumb ' + g[i % 6] + '"></div><div>' +
+            "<h3 style='font-size:17px;margin-bottom:6px'>" + esc(f.title) + "</h3>" +
+            "<p style='margin-bottom:8px'>" + statusPill +
+              '<span class="pill">' + (f.price_cents == 0 ? "FREE + ads" : money(f.price_cents) + " · 7-day") + "</span>" +
+              '<span class="pill">' + f.width + "×" + f.height + " · " + esc(f.orientation) + "</span>" +
+              '<span class="pill">' + f.views + " views</span></p>" +
+            "<p class='hint' style='margin:0'>" + esc(f.synopsis) + "</p>" +
+            "<p class='hint' style='margin:8px 0 0'>" + note + "</p>" +
+            (f.status === "approved" ? '<a class="btn btn-ghost" style="margin-top:12px" href="watch.html?film=' + f.id + '">Watch it live</a>' : "") +
+            "</div></div>";
+        }).join("");
+        html += "</div>";
+      }
+
+      if (s.remaining > 0) {
+        html += UPLOAD_FORM.replace("__SLOTS__",
+          d.films.length ? "You have <b>" + s.remaining + "</b> of " + s.total + " slots left." : "");
+      } else {
+        html += '<div class="panel"><h2>All slots used</h2><p class="hint" style="margin:0">' +
+          "You've filled all <b>" + s.total + "</b> of your film slots. Need more? Ask an admin to raise your limit.</p></div>";
+      }
+
+      panel.innerHTML = html;
+      if (s.remaining > 0) loadUploader();
+
+      document.getElementById("unlocks-panel").innerHTML =
+        '<div class="panel"><h2>Recent unlocks</h2>' +
+        (d.recent_unlocks.length
+          ? d.recent_unlocks.map((u) =>
+              '<div class="unlock-row"><div>@' + esc(u.handle) + " unlocked your film · <strong>" + money(u.amount_cents) + "</strong></div>" +
+              "<span>" + esc(u.created_at) + " UTC</span></div>").join("")
+          : '<p class="hint" style="margin:0">No unlocks yet — share your film link to get the first one.</p>') +
+        "</div>";
+    }
+
+    // The uploader script is shared with upload.html; load it after the
+    // form markup exists so it can bind to the fields.
+    function loadUploader() {
+      const s = document.createElement("script");
+      s.src = "assets/upload.js?v=11";
+      document.body.appendChild(s);
+    }
+
+    loadStudio();
+  </script>
+</body>
+</html>
