@@ -14,3 +14,6 @@ Thumbs.db
 
 # Local auth scratch files
 .gh_*
+
+# Internal ops notes (server access details) — never publish
+HANDOFF.md

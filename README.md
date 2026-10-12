@@ -8,13 +8,15 @@
 
 ## Features
 
-- **Google sign-in** — one-tap authentication (Google Identity Services)
-- **Film submissions** — creators upload AI films up to **20 GB**, **1080p–4K**, one film per creator
-- **Resumable uploads** — videos upload directly from the browser to a video CDN via TUS (survives dropped connections), then transcode automatically
+- **Google sign-in** — one-tap authentication, with a watch-or-publish choice at sign-up
+- **Two experiences** — a viewer profile (watch history, active unlocks, suggestions) and a **Creator Studio** (analytics, earnings, built-in uploader)
+- **Film submissions** — up to **20 GB**, **1080p–4K**, vertical *and* horizontal; per-creator film slots an admin can raise
+- **Resumable uploads** — videos go straight from the browser to a video CDN via TUS (survives dropped connections), then transcode automatically
 - **Pay-per-view** — creators set their own price (free with ads, or $2.99–$100). A purchase unlocks the film for **7 days**
-- **Watch pages** — adaptive streaming player; free films play instantly, paid films gate behind a Stripe Checkout unlock
-- **Creator pages** — data-driven profiles with each creator's films, followers, and view counts
-- **Review dashboard** — admin queue to approve/reject submissions before they go live
+- **Watch pages** — adaptive streaming player with a portrait layout for vertical films; paid films gate behind Stripe Checkout
+- **Creator pages** — data-driven public profiles with films, followers, and view counts
+- **Admin dashboard** — business metrics, a click-to-play review queue, every video's storage location, and per-account controls (slots, creator status, suspension)
+- **Motion design** — animated neural-network hero, decoding headline, scroll reveals, parallax and a scroll-progress bar, all respecting `prefers-reduced-motion`
 - **Free + ads model** — AdSense-ready ad slots under free films
 
 ## Tech stack
@@ -32,30 +34,38 @@
 
 ```
 aiflixs/
-├── index.html          # Home / browse
+├── index.html          # Home / browse (animated hero)
 ├── about.html          # About
-├── signup.html         # Google + email sign-up
-├── upload.html         # Film submission (rule enforcement)
+├── signup.html         # Sign-up: choose watch or publish, then Google
+├── upload.html         # Creator landing page (routes creators to the studio)
+├── dashboard.html      # Creator Studio: analytics + uploader
+├── member.html         # Viewer profile: history, unlocks, suggestions
 ├── watch.html          # Player + pay-per-view unlock
-├── creator.html        # Creator profile  (?u=<handle>)
-├── admin.html          # Review dashboard (admins only)
+├── creator.html        # Public creator profile  (?u=<handle>)
+├── admin.php           # Admin dashboard — server-side gated to admin emails
 ├── assets/
-│   ├── style.css       # Dark, minimal theme
-│   ├── app.js          # Auth, film loading, checkout
+│   ├── style.css       # Black / electric-blue / red theme
+│   ├── fx.js           # Motion layer: neural canvas, reveals, parallax
+│   ├── app.js          # Auth, role-aware nav, film loading, checkout
 │   ├── upload.js       # Client-side rule checks + TUS upload
+│   ├── logo.svg, favicon.svg
 │   └── config.example.js
 └── api/
     ├── config.example.php   # <-- copy to config.php and fill in
     ├── db.php               # BunnyDB query helper
     ├── auth.php             # Google token verification + sessions
+    ├── profile.php          # Creator mode, profile edits
     ├── films.php            # Public film catalogue
-    ├── submit.php           # Submission + rule enforcement
+    ├── submit.php           # Submission + rule/slot enforcement
     ├── upload_begin.php     # Presigned Bunny Stream upload
     ├── upload_complete.php  # Mark uploaded -> pending review
-    ├── watch.php            # Access control + player URL
-    ├── creator.php          # Creator page data
+    ├── watch.php            # Access control + player URL + watch history
+    ├── creator.php          # Public creator page data
+    ├── dashboard.php        # Creator Studio data
+    ├── member.php           # Viewer profile data
     ├── checkout.php         # Stripe Checkout + 7-day unlock
-    └── admin.php            # Review queue (approve/reject)
+    ├── metrics.php          # Business metrics (admin)
+    └── admin.php            # Review queue, accounts, admin actions
 ```
 
 ## Running it yourself
@@ -66,8 +76,8 @@ aiflixs/
    cp assets/config.example.js assets/config.js
    ```
 2. Create the database tables (BunnyDB / any libSQL or SQLite):
-   `profiles`, `films` (unique `creator_id` enforces one-film-per-creator),
-   `purchases`, `follows`.
+   `profiles` (with `is_creator`, `film_slots`, `suspended`), `films`,
+   `purchases`, `follows`, `watch_history`.
 3. Set up a [Google OAuth client](https://console.cloud.google.com) and a
    [Bunny Stream](https://dash.bunny.net) library; add the IDs/keys to `config.php`.
 4. Serve the folder with PHP:
